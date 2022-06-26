@@ -9,13 +9,13 @@ class Transaction {
         this.amount = amount;
     }
 
-    // we just sign the hash of the transaction
     calculateHash(){
+        //this hash that we are going to sign woth our private key
         return SHA256(this.fromAddress + this.toAddress + this.amount).toString();
     }
 
     signTransaction(signingKey){
-
+        // to sign a transaction it necessary the private and the public key
         if(signingKey.getPublic('hex') !== this.fromAddress){
             throw new Error ('You cannot sign transactions for other wallets!');
         }
@@ -42,8 +42,8 @@ class Block {
         this.timestamp = timestamp;
         this.transactions = transactions;
         this.previousHash = previousHash;
-        this.hash = this.calculateHash(); // the block hash
         this.nonce = 0;
+        this.hash = this.calculateHash(); // the block hash
     }
 
     calculateHash() {
@@ -61,6 +61,7 @@ class Block {
     hasValidTransactions(){
         for(const tx of this.transactions){
             if(!tx.isValid()){
+                console.log("false");
                 return false;
             }
         }
@@ -89,7 +90,7 @@ class Blockchain{
         this.pendingTransactions.push(rewarTX);
         
         // in real world miners have to choose what pending transactions they want to add, because there are many
-        let block = new Block(Date.now(), this.pendingTransactions);
+        let block = new Block(Date.now(), this.pendingTransactions, this.getLatestBlock().hash);
         block.mineBlock(this.difficulty);
 
         console.log("Block successfully mined!");
